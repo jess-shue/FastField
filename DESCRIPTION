@@ -1,0 +1,25 @@
+Package: FastField
+Title: Process FastField Data
+Version: 0.0.0.9000
+Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
+Description: Process FastField data.
+License: GPL-3
+Depends: 
+    R (>= 3.4.3)
+Imports: 
+    dplyr,
+    DT,
+    fgeo.tool,
+    fs,
+    purrr,
+    readr,
+    remotes,
+    rlang,
+    tibble,
+    tidyr
+Suggests: 
+    testthat
+Encoding: UTF-8
+LazyData: true
+Remotes: forestgeo/fgeo.tool
+RoxygenNote: 6.0.1
