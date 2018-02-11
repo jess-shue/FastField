@@ -1,0 +1,8 @@
+submission_id,section_id,quadrat,date,team,stem_count,view_map,map,sheet,tag,stem_tag,species,px,py,dbh,status,codes,pom,dbh_2018,status_2018,codes_2018,notes,data_check,dbh_check,new_stem,unique_stem
+73e4154d-ca4b-495d-936b-98d95fe916a0,NA,101,01-05-2018,JS,78,True,60060_73e4154d-ca4b-495d-936b-98d95fe916a0_51c357c6-db03-47b7-92e3-60c85368d63f.jpg,start_page,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA_NA
+73e4154d-ca4b-495d-936b-98d95fe916a0,NA,101,NA,NA,NA,NA,NA,orignal_stems,10004,1,libe,9.800000191,5.800000191,3.9,alive,M,1.3,4.1,LI,M,NA,CO,0.2,NA,10004_1
+73e4154d-ca4b-495d-936b-98d95fe916a0,NA,101,NA,NA,NA,NA,NA,orignal_stems,10004,2,libe,9.800000191,5.800000191,1.8,alive,S,1.3,2,LI,S,NA,CO,0.2,NA,10004_2
+73e4154d-ca4b-495d-936b-98d95fe916a0,NA,101,NA,NA,NA,NA,NA,orignal_stems,10004,3,libe,9.800000191,5.800000191,1.6,alive,S,1.3,1.8,LI,S,NA,CO,0.2,NA,10004_3
+73e4154d-ca4b-495d-936b-98d95fe916a0,NA,101,NA,NA,NA,NA,NA,new_secondary_stems,10004,4,libe,9.800000191,5.800000191,1,LI,S,1.3,NA,NA,NA,NA,NA,NA,1,10004_4
+73e4154d-ca4b-495d-936b-98d95fe916a0,NA,101,NA,NA,NA,NA,NA,recruits,123456,1,acne,2,2,1.5,LI,M,1.3,NA,NA,NA,NA,NA,NA,NA,123456_1
+73e4154d-ca4b-495d-936b-98d95fe916a0,NA,101,NA,NA,NA,NA,NA,recruits,123456,2,acne,2,2,1,LI,Sec,1.3,NA,NA,NA,NA,NA,NA,NA,123456_2

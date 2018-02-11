@@ -1,0 +1,199 @@
+---
+title: "Write a .csv file for selected spreadsheets in each excel workbook"
+output: 
+  rmarkdown::html_document:
+    toc: true
+    toc_depth: 3
+    theme: united
+params:
+  input_dir: "./input"
+  output_dir: "./output"
+---
+
+```{r setup, include=FALSE}
+set.seed(1014)
+options(digits = 3)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = "#>",
+  collapse = TRUE,
+  cache = TRUE,
+  out.width = "70%",
+  fig.align = "center",
+  fig.width = 6,
+  fig.asp = 0.618,  # 1 / phi
+  fig.show = "hold"
+)
+```
+
+# Overview
+
+The goal of this document is to show how to process data from a specific software that Jess Sue is developing for the collection and management of fieldwork data. The job is wrapped into a single function (see [`?xl_sheets_to_csv`](xxx add link)) which does all of this:
+
+* Reads each spreadsheet from each workbook and maps it to a dataframe in a list of dataframes.
+* Lowercases and links the names of each element of the list of dataframes.
+* Keeps only these dataframes: (1) original_stems; (2) new_secondary_stems; (3)
+  recruits; and (4) start_page.
+* Keeps only non-empty dataframes and warns if any dataframe where dropped.
+* Lowercases and links the names of each dataframe-variable.
+* Drops fake stems.
+* Adds the name of each spreadsheet as the value of the variable `sheet`.
+* Reduces the list of dataframes to a single dataframe, by joining them.
+* Adds the variable `unique_stem` to uniquely identify each stem.
+* Outputs a .csv file, which name matches the name of the workbook
+  where the original data comes from.
+
+# Setup
+
+The function `xl_sheets_to_csv` lives in the package __qcr__ on GitHub. If you don't have this package you need to install it.
+
+```R
+# install.packages("remotes")
+remotes::install_github("forestgeo/qcr")
+```
+
+```{r}
+library(qcr)
+```
+
+These other packages are not critical but lightweighted and convenient -- so it's worthwhile installing them. 
+
+```{r}
+# Make nice tables
+library(DT)
+# Makes the code reproducible accross computers by avoiding `setwd()`
+library(here)
+# Loads multiple purpose packages that make your life easier
+library(tidyverse)
+```
+
+---
+
+Hint
+
+Check these articles if you struggle to install, load, or use R packages:
+
+* [How to update R, RStudio and R packages with minimal effort](https://goo.gl/ALpYxX).
+* [How to install packages from GitHub](https://goo.gl/eUX2Br).
+
+---
+
+I'll read excel workbooks from the directory `r params$input_dir` and I'll write .csv files to the directory `r params$output_dir`. You can set the paths to those directories are set via the _params_ option of the header of this document.
+
+You can see that I have excel workbooks in my `r params$input_dir` directory.
+
+```{r}
+fs::dir_ls(params$input_dir)
+```
+
+---
+
+# Work
+
+Now let's run `xl_sheets_to_csv()`. (The output is silent.)
+
+```{r}
+qcr::xl_sheets_to_csv(params$input_dir, params$output_dir)
+```
+
+---
+
+Note
+
+`xl_sheets_to_csv` expects that the names of the spreadsheets and columns of each spreadsheet will be these ones:
+
+```{r echo=FALSE}
+one_excel_file <- fs::dir_ls(params$input_dir)[[1]]
+df_list <- qcr::xl_list_sheets(one_excel_file)
+purrr::map(df_list, names)
+```
+
+This is rigid but makes the interface extreemely simple and thus easy to use. If you change the names of the spreadsheets or the names of the columns in each spreadsheet please let me know. If so, we have two options: (1) To make `xl_sheets_to_csv` more flexible at the cost of making it also more complex and a little harder to use; or (2) To update `xl_sheets_to_csv` to hard-wire the new names.
+
+---
+
+# Review
+
+## Confirm the expected .csv files were output into `r params$output_dir`
+
+You can see as many .csv files in `r params$output_dir` as workbooks I had in `r params$input_dir`.
+
+```{r}
+csv_files_in_output <- fs::dir_ls(params$output_dir, regexp = ".csv$")
+csv_files_in_output
+```
+
+Now let's combine and the resulting .csv files to make it easier to explore explore the data.
+
+```{r, message=FALSE}
+names_of_csv_files <- sub(".csv$", "", basename(csv_files_in_output))
+
+combined <- csv_files_in_output %>% 
+  map(readr::read_csv) %>% 
+  set_names(names_of_csv_files) %>% 
+  enframe(name = "csv_filename") %>% 
+  unnest()
+
+DT::datatable(combined)
+```
+
+Observe that some tags have missing values.
+
+```{r}
+combined %>% 
+  select(unique_stem, matches("stem|tag|dbh"), everything()) %>% 
+  filter(is.na(tag))
+```
+
+Removing missing tags.
+
+```{r}
+combined <- filter(combined, !is.na(tag))
+```
+
+## Identify stems that were skippe in this census.
+
+```{r}
+sampled_before <- combined %>% 
+  filter(sheet == "orignal_stems") %>% 
+  pull(unique_stem) %>% 
+  unique()
+sampled_now <- combined %>% 
+  filter(sheet != "orignal_stems") %>% 
+  pull(unique_stem) %>% 
+  unique()
+skipped_stems <- setdiff(sampled_before, sampled_now)
+
+combined %>% 
+  select(unique_stem, sheet, matches("stem|tag|dbh"), everything()) %>% 
+  dplyr::filter(unique_stem %in% skipped_stems)
+```
+
+## Identify duplicated stems
+
+```{r}
+duplicated_stems <- combined %>% 
+  group_by(unique_stem) %>% 
+  count(unique_stem) %>% 
+  filter(n > 1) %>% 
+  pull(unique_stem) %>% 
+  unique()
+
+combined %>% 
+  select(unique_stem, sheet, matches("stem|tag|dbh"), everything()) %>% 
+  dplyr::filter(unique_stem %in% duplicated_stems) %>% 
+  arrange(unique_stem)
+```
+
+---
+
+Note
+
+* The example dataset has all its values duplicated. That is intentional.
+
+---
+
+## Other checks
+
+To further vet the data, e.g. to check that `DBH` values are reasonable, I need more data.
