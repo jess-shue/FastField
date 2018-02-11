@@ -2,3 +2,4 @@
 ^\.Rproj\.user$
 ^inst/FastField$
 ^LICENSE\.md$
+^\.travis\.yml$
