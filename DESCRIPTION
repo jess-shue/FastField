@@ -5,7 +5,7 @@ Authors@R: person("First", "Last", email = "first.last@example.com", role = c("a
 Description: Process FastField data.
 License: GPL-3
 Depends: 
-    R (>= 3.4.3)
+    R (>= 3.1.2)
 Imports: 
     dplyr,
     DT,
